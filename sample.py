@@ -8,6 +8,7 @@ import time
 #byte size
 CHUNK_SIZE = 4096
 
+
 def md5(file_name):
 #Compute md5 of file CONTENTS
 #   file_name - path to file (ex. /Users/123/Desktop/file.txt)
@@ -91,6 +92,7 @@ def get_path(hash):
     names_db.close()
     return ret
 
+
 #Return True if should be excluded
 #Return False if should be printed
 def verify(path):
@@ -99,7 +101,9 @@ def verify(path):
     "Windows\winsxs\Temp" in path or \
     ".log" in path.lower():
         return True
-    return False
+    else:
+        return False
+
 
 def check_backup(path):
     if "C:\Windows\winsxs\Backup" in path:
@@ -107,12 +111,13 @@ def check_backup(path):
     else:
         return False
 
-def diff_db(old_db_name, new_db_name, log_path, use_mask = False):
+
+def diff_db(old_db_name, new_db_name, log_path, use_mask=False):
     f = open(log_path, 'w')
     old_db = shelve.open(old_db_name)
     new_db = shelve.open(new_db_name)
     backup_data = ""
-    if cmp(old_db,new_db) == 0:
+    if cmp(old_db, new_db) == 0:
         print "\nNo changes in the directory"
     else:
         print "\nThere are some changes in the directory"
@@ -123,26 +128,33 @@ def diff_db(old_db_name, new_db_name, log_path, use_mask = False):
                 continue
             if not key in new_db:
                 result = "The file " + path + " was removed\n"
-                print result
-                f.write(result)
-            elif (old_db[key] != new_db[key]):
+                if check_backup(path):
+                    backup_data += result
+                else:
+                    print result
+                    f.write(result)
+            elif old_db[key] != new_db[key]:
                 result = "The file " + path + " was updated\n"
-                print result
-                f.write(result)
+                if check_backup(path):
+                    backup_data += result
+                else:
+                    print result
+                    f.write(result)
                 new_db[key] = 0
             else:
                 new_db[key] = 0
                 continue
-            if check_backup(path):
-                backup_data += result
+
         for key in new_db.keys():
             if not new_db[key] == 0:
                 result = "The file " + path + " was created\n"
-                print result
-                f.write(result)
                 if check_backup(path):
                     backup_data += result
+                else:
+                    print result
+                    f.write(result)
         f.write("\nChanges in backup folder:\n" + backup_data)
+
 
 def speed_test(path):
     timer = time.time()
@@ -153,6 +165,6 @@ def speed_test(path):
     print str(time.time() - timer)
 compute_dir_hash('C:\Windows', progress_bar=True)
 #compute_dir_hash('/Users/pontifik/Desktop/Work', progress_bar=True)
-diff_db('CWindowsold_db','CWindows_db','log.txt', use_mask = True)
+diff_db('CWindowsold_db', 'CWindows_db', 'log.txt', use_mask=True)
 #speed_test('C:\Python27')
 print "DONE"
