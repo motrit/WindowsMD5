@@ -159,7 +159,10 @@ def diff_db(old_db_name, new_db_name, log_path, use_mask=False):
 
         for key in new_db.keys():
             path = get_path(key)
-            if not new_db[key] == 0:
+            if (use_mask) and (verify(path)):
+                new_db[key] = 0
+                continue
+            if not (new_db[key] == 0):
                 result = "The file " + path + " was created\n"
                 if check_backup(path):
                     backup_data += result
