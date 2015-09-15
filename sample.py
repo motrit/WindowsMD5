@@ -101,33 +101,48 @@ def verify(path):
         return True
     return False
 
+def check_backup(path):
+    if "C:\Windows\winsxs\Backup" in path:
+        return True
+    else:
+        return False
+
 def diff_db(old_db_name, new_db_name, log_path, use_mask = False):
     f = open(log_path, 'w')
     old_db = shelve.open(old_db_name)
     new_db = shelve.open(new_db_name)
+    backup_data = ""
     if cmp(old_db,new_db) == 0:
         print "\nNo changes in the directory"
     else:
         print "\nThere are some changes in the directory"
         for key in old_db.keys():
-            if use_mask and verify(get_path(key)):
+            path = get_path(key)
+            if use_mask and verify(path):
+                new_db[key] = 0
                 continue
             if not key in new_db:
-                result = "The file " + get_path(key) + " was removed\n"
+                result = "The file " + path + " was removed\n"
                 print result
                 f.write(result)
             elif (old_db[key] != new_db[key]):
-                result = "The file " + get_path(key) + " was updated\n"
+                result = "The file " + path + " was updated\n"
                 print result
                 f.write(result)
                 new_db[key] = 0
             else:
                 new_db[key] = 0
+                continue
+            if check_backup(path):
+                backup_data += result
         for key in new_db.keys():
             if not new_db[key] == 0:
-                result = "The file " + get_path(key) + " was created\n"
+                result = "The file " + path + " was created\n"
                 print result
                 f.write(result)
+                if check_backup(path):
+                    backup_data += result
+        f.write("\nChanges in backup folder:\n" + backup_data)
 
 def speed_test(path):
     timer = time.time()
@@ -136,8 +151,8 @@ def speed_test(path):
             file_path = root + "\\" + name
             hash_value = md5(file_path)
     print str(time.time() - timer)
-#compute_dir_hash('C:\Python27', progress_bar=True)
+compute_dir_hash('C:\Windows', progress_bar=True)
 #compute_dir_hash('/Users/pontifik/Desktop/Work', progress_bar=True)
-#diff_db('CPython27old_db','CPython27_db','log.txt', use_mask = True)
+diff_db('CWindowsold_db','CWindows_db','log.txt', use_mask = True)
 #speed_test('C:\Python27')
 print "DONE"
