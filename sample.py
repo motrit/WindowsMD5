@@ -92,7 +92,7 @@ def get_path(hash):
     return ret
 
 
-def diff_db(old_db_name, new_db_name, log_path):
+def diff_db(old_db_name, new_db_name, log_path, include_log_files = false):
     f = open(log_path, 'w')
     old_db = shelve.open(old_db_name)
     new_db = shelve.open(new_db_name)
@@ -101,6 +101,8 @@ def diff_db(old_db_name, new_db_name, log_path):
     else:
         print "\nThere are some changes in the directory"
         for key in old_db.keys():
+            if 'log' in (get_path(key)).lower():
+                continue
             if not key in new_db:
                 result = "The file " + get_path(key) + " was removed\n"
                 print result
