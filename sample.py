@@ -99,6 +99,9 @@ def verify(path):
     if "Windows\ServiceProfiles\LocalService\AppData\Local\Temp" in path or \
     "Windows\System32\config\systemprofile\AppData\Local\Microsoft\Windows\Temporary Internet Files" in path or \
     "Windows\winsxs\Temp" in path or \
+    "Windows\System32\LogFiles" in path or \
+    "Windows\System32\WDI\LogFiles" in path or \
+    "Windows\System32\winevt\Logs" in path or \
     ".log" in path.lower():
         return True
     else:
