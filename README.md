@@ -12,6 +12,6 @@ C:\Windows\ServiceProfiles\LocalService\AppData\Local\Temp
 C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Windows\Temporary Internet Files
 C:\Windows\winsxs\Temp
 
-/.../*.log
+\...\*.log
 
 Отдельно папка C:\Windows\winsxs\Backup
