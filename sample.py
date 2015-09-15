@@ -102,11 +102,11 @@ def diff_db(old_db_name, new_db_name, log_path):
         print "\nThere are some changes in the directory"
         for key in old_db.keys():
             if not key in new_db:
-                result = "The file " + get_path(key) + " was removed"
+                result = "The file " + get_path(key) + " was removed\n"
                 print result
                 f.write(result)
             elif (old_db[key] != new_db[key]):
-                result = "The file " + get_path(key) + " was updated"
+                result = "The file " + get_path(key) + " was updated\n"
                 print result
                 f.write(result)
                 new_db[key] = 0
@@ -114,7 +114,7 @@ def diff_db(old_db_name, new_db_name, log_path):
                 new_db[key] = 0
         for key in new_db.keys():
             if not new_db[key] == 0:
-                result = "The file " + get_path(key) + " was created"
+                result = "The file " + get_path(key) + " was created\n"
                 print result
                 f.write(result)
 
