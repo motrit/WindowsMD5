@@ -92,7 +92,7 @@ def get_path(hash):
     return ret
 
 
-def diff_db(old_db_name, new_db_name, log_path, include_log_files = false):
+def diff_db(old_db_name, new_db_name, log_path, exclude_log_files = False):
     f = open(log_path, 'w')
     old_db = shelve.open(old_db_name)
     new_db = shelve.open(new_db_name)
@@ -129,6 +129,6 @@ def speed_test(path):
     print str(time.time() - timer)
 #compute_dir_hash('C:\Python27', progress_bar=True)
 #compute_dir_hash('/Users/pontifik/Desktop/Work', progress_bar=True)
-#diff_db('CPython27old_db','CPython27_db','log.txt')
+#diff_db('CPython27old_db','CPython27_db','log.txt', exclude_log_files = True)
 #speed_test('C:\Python27')
 print "DONE"
