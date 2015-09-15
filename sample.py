@@ -105,6 +105,12 @@ def verify(path):
     "Windows\SoftwareDistribution\DataStore\Logs" in path or \
     "Windows\System32\wfp" in path or \
     "Windows\ServiceProfiles" in path or \
+    "Windows\winsxs\FileMaps" in path or \
+    ".chk" in path.lower() or \
+    ".etl" in path.lower() or \
+    ".regtrans-ms" in path.lower() or \
+    ".crmlog" in path.lower() or \
+    "tm.blf" in path.lower() or \
     ".log" in path.lower():
         return True
     else:
