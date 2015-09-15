@@ -102,6 +102,9 @@ def verify(path):
     "Windows\System32\LogFiles" in path or \
     "Windows\System32\WDI\LogFiles" in path or \
     "Windows\System32\winevt\Logs" in path or \
+    "Windows\SoftwareDistribution\DataStore\Logs" in path or \
+    "Windows\System32\wfp" in path or \
+    "Windows\ServiceProfiles" in path or \
     ".log" in path.lower():
         return True
     else:
@@ -156,6 +159,7 @@ def diff_db(old_db_name, new_db_name, log_path, use_mask=False):
                 else:
                     print result
                     f.write(result)
+                new_db[key] = 0
         f.write("\nChanges in backup folder:\n" + backup_data)
 
 
