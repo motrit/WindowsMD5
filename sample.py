@@ -91,8 +91,17 @@ def get_path(hash):
     names_db.close()
     return ret
 
+#Return True if should be excluded
+#Return False if should be printed
+def verify(path):
+    if "Windows\ServiceProfiles\LocalService\AppData\Local\Temp" in path or \
+    "Windows\System32\config\systemprofile\AppData\Local\Microsoft\Windows\Temporary Internet Files" in path or \
+    "Windows\winsxs\Temp" in path or \
+    ".log" in path.lower():
+        return True
+    return False
 
-def diff_db(old_db_name, new_db_name, log_path, exclude_log_files = False):
+def diff_db(old_db_name, new_db_name, log_path, use_mask = False):
     f = open(log_path, 'w')
     old_db = shelve.open(old_db_name)
     new_db = shelve.open(new_db_name)
@@ -101,7 +110,7 @@ def diff_db(old_db_name, new_db_name, log_path, exclude_log_files = False):
     else:
         print "\nThere are some changes in the directory"
         for key in old_db.keys():
-            if 'log' in (get_path(key)).lower():
+            if use_mask and verify(get_path(key)):
                 continue
             if not key in new_db:
                 result = "The file " + get_path(key) + " was removed\n"
@@ -129,6 +138,6 @@ def speed_test(path):
     print str(time.time() - timer)
 #compute_dir_hash('C:\Python27', progress_bar=True)
 #compute_dir_hash('/Users/pontifik/Desktop/Work', progress_bar=True)
-#diff_db('CPython27old_db','CPython27_db','log.txt', exclude_log_files = True)
+#diff_db('CPython27old_db','CPython27_db','log.txt', use_mask = True)
 #speed_test('C:\Python27')
 print "DONE"
