@@ -222,10 +222,18 @@ if __name__ == "__main__":
         if sys.argv[2] == "--progressbar":
             if (len(sys.argv) < 4):
                 display_usage()
+            if (os.path.exists(sys.argv[3]) == False):
+                print "No such file or directory to compute hash of... Exiting"
+                exit(1)
+                pass
             if (len(sys.argv) < 5):
                 compute_dir_hash(sys.argv[3], progress_bar=True)
             else:
                 compute_dir_hash(sys.argv[3], progress_bar=True, dbname=sys.argv[4])
+            exit(1)
+            pass
+        if (os.path.exists(sys.argv[2]) == False):
+            print "No such file or directory to compute hash of... Exiting"
             exit(1)
             pass
         if (len(sys.argv) < 4):
@@ -240,10 +248,18 @@ if __name__ == "__main__":
             if (len(sys.argv) < 5):
                 display_usage()
             else:
+                if ((os.path.exists(sys.argv[3]) == False) or (os.path.exists(sys.argv[4]) == False) ):
+                    print "No such database... Exiting"
+                    exit(1)
+                    pass
                 diff_db(sys.argv[3], sys.argv[4], 'log.txt', use_mask=True)
                 exit(1)
                 pass
 
         if (len(sys.argv) < 4):
             display_usage()
+        if ((os.path.exists(sys.argv[2]) == False) or (os.path.exists(sys.argv[3]) == False) ):
+            print "No such database... Exiting"
+            exit(1)
+            pass
         diff_db(sys.argv[2], sys.argv[3], 'log.txt')
