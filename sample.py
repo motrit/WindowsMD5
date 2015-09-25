@@ -4,6 +4,8 @@ import hashlib
 import os
 import shelve
 import time
+import sys
+
 
 #byte size
 CHUNK_SIZE = 4096
@@ -37,7 +39,7 @@ def update_hash_names(path):
     names_db.close()
 
 
-def compute_dir_hash(path, progress_bar=False):
+def compute_dir_hash(path, progress_bar=False, dbname="hash_database"):
 #Produce SHELVE-database with dictionary [HASH1:HASH2]
 #Where HASH1 is hash of path to file, HASH2 is hash of file contents
 #   path - path to the directory to be hashed
@@ -60,7 +62,7 @@ def compute_dir_hash(path, progress_bar=False):
         counter = 0
 
     print "Hashing directory " + path + " and all subdir contents"
-    dir_db = shelve.open(str(path + '_db').replace(":", '').replace("\\", ''))
+    dir_db = shelve.open(dbname)
 
     for root, dirs, files in os.walk(path):
         for name in files:
@@ -180,8 +182,68 @@ def speed_test(path):
             file_path = root + "\\" + name
             hash_value = md5(file_path)
     print str(time.time() - timer)
-compute_dir_hash('C:\Windows', progress_bar=True)
+
+def display_usage():
+        print "Usage: {0} <command> <options> <arguments>\nRun {0} --help to view available commands".format(sys.argv[0])
+        exit(1)
+        pass
+#compute_dir_hash('C:\Windows', progress_bar=True)
 #compute_dir_hash('/Users/pontifik/Desktop/Work', progress_bar=True)
-diff_db('CWindowsold_db', 'CWindows_db', 'log.txt', use_mask=True)
+#diff_db('CWindowsold_db', 'CWindows_db', 'log.txt', use_mask=True)
 #speed_test('C:\Python27')
-print "DONE"
+#print "DONE"
+
+if __name__ == "__main__":
+
+    if(len(sys.argv) < 2):
+        display_usage()
+
+    #sample.py --help
+    if (sys.argv[1] == "--help"):
+        print "Available commands:" \
+              "\n\t--compute <options> <path_to_directory> <output_db_name>(optional)" \
+              "\n\t--diff <options> <path_to_db1> <path_to_db2>" \
+              "\nAvailable options:" \
+              "\n\t--progressbar - to enable progress bar during directory " \
+              "\n\t\thash computing, does nothing while diffing" \
+              "\n\t--usemask - to exclude unnescessary directories and file " \
+              "\n\t\tformats during diff, does nothing while " \
+              "computing directory hash"\
+              "\nExample:" \
+              "\n{0} --compute --progressbar ./ example_db" \
+            .format(sys.argv[0])
+        exit(1)
+        pass
+
+    if (len(sys.argv) < 3):
+        display_usage()
+
+    if (sys.argv[1] == "--compute"):
+        if sys.argv[2] == "--progressbar":
+            if (len(sys.argv) < 4):
+                display_usage()
+            if (len(sys.argv) < 5):
+                compute_dir_hash(sys.argv[3], progress_bar=True)
+            else:
+                compute_dir_hash(sys.argv[3], progress_bar=True, dbname=sys.argv[4])
+            exit(1)
+            pass
+        if (len(sys.argv) < 4):
+            compute_dir_hash(sys.argv[2])
+        else:
+            compute_dir_hash(sys.argv[2], dbname=sys.argv[3])
+        exit(1)
+        pass
+
+    if (sys.argv[1] == "--diff"):
+        if sys.argv[2] == "--usemask":
+            if (len(sys.argv) < 5):
+                display_usage()
+            else:
+                diff_db(sys.argv[3], sys.argv[4], 'log.txt', use_mask=True)
+                exit(1)
+                pass
+
+        if (len(sys.argv) < 4):
+            display_usage()
+        diff_db(sys.argv[2], sys.argv[3], 'log.txt')
