@@ -113,6 +113,7 @@ def verify(path):
     ".regtrans-ms" in path.lower() or \
     ".crmlog" in path.lower() or \
     "tm.blf" in path.lower() or \
+    ".cdf-ms" in path.lower() or \
     ".log" in path.lower():
         return True
     else:
