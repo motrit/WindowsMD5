@@ -5,7 +5,17 @@ import os
 import shelve
 import time
 import sys
+import ctypes
 
+class disable_file_system_redirection:
+    _disable = ctypes.windll.kernel32.Wow64DisableWow64FsRedirection
+    _revert = ctypes.windll.kernel32.Wow64RevertWow64FsRedirection
+    def __enter__(self):
+        self.old_value = ctypes.c_long()
+        self.success = self._disable(ctypes.byref(self.old_value))
+    def __exit__(self, type, value, traceback):
+        if self.success:
+            self._revert(self.old_value)
 
 #byte size
 CHUNK_SIZE = 4096
@@ -195,72 +205,72 @@ def display_usage():
 #print "DONE"
 
 if __name__ == "__main__":
-
-    if(len(sys.argv) < 2):
-        display_usage()
-
-    #sample.py --help
-    if (sys.argv[1] == "--help"):
-        print "Available commands:" \
-              "\n\t--compute <options> <path_to_directory> <output_db_name>(optional)" \
-              "\n\t--diff <options> <path_to_db1> <path_to_db2>" \
-              "\nAvailable options:" \
-              "\n\t--progressbar - to enable progress bar during directory " \
-              "\n\t\thash computing, does nothing while diffing" \
-              "\n\t--usemask - to exclude unnescessary directories and file " \
-              "\n\t\tformats during diff, does nothing while " \
-              "computing directory hash"\
-              "\nExample:" \
-              "\n{0} --compute --progressbar ./ example_db" \
-            .format(sys.argv[0])
-        exit(1)
-        pass
-
-    if (len(sys.argv) < 3):
-        display_usage()
-
-    if (sys.argv[1] == "--compute"):
-        if sys.argv[2] == "--progressbar":
-            if (len(sys.argv) < 4):
-                display_usage()
-            if (os.path.exists(sys.argv[3]) == False):
+    with disable_file_system_redirection():
+        if(len(sys.argv) < 2):
+            display_usage()
+    
+        #sample.py --help
+        if (sys.argv[1] == "--help"):
+            print "Available commands:" \
+                  "\n\t--compute <options> <path_to_directory> <output_db_name>(optional)" \
+                  "\n\t--diff <options> <path_to_db1> <path_to_db2>" \
+                  "\nAvailable options:" \
+                  "\n\t--progressbar - to enable progress bar during directory " \
+                  "\n\t\thash computing, does nothing while diffing" \
+                  "\n\t--usemask - to exclude unnescessary directories and file " \
+                  "\n\t\tformats during diff, does nothing while " \
+                  "computing directory hash"\
+                  "\nExample:" \
+                  "\n{0} --compute --progressbar ./ example_db" \
+                .format(sys.argv[0])
+            exit(1)
+            pass
+    
+        if (len(sys.argv) < 3):
+            display_usage()
+    
+        if (sys.argv[1] == "--compute"):
+            if sys.argv[2] == "--progressbar":
+                if (len(sys.argv) < 4):
+                    display_usage()
+                if (os.path.exists(sys.argv[3]) == False):
+                    print "No such file or directory to compute hash of... Exiting"
+                    exit(1)
+                    pass
+                if (len(sys.argv) < 5):
+                    compute_dir_hash(sys.argv[3], progress_bar=True)
+                else:
+                    compute_dir_hash(sys.argv[3], progress_bar=True, dbname=sys.argv[4])
+                exit(1)
+                pass
+            if (os.path.exists(sys.argv[2]) == False):
                 print "No such file or directory to compute hash of... Exiting"
                 exit(1)
                 pass
-            if (len(sys.argv) < 5):
-                compute_dir_hash(sys.argv[3], progress_bar=True)
+            if (len(sys.argv) < 4):
+                compute_dir_hash(sys.argv[2])
             else:
-                compute_dir_hash(sys.argv[3], progress_bar=True, dbname=sys.argv[4])
+                compute_dir_hash(sys.argv[2], dbname=sys.argv[3])
             exit(1)
             pass
-        if (os.path.exists(sys.argv[2]) == False):
-            print "No such file or directory to compute hash of... Exiting"
-            exit(1)
-            pass
-        if (len(sys.argv) < 4):
-            compute_dir_hash(sys.argv[2])
-        else:
-            compute_dir_hash(sys.argv[2], dbname=sys.argv[3])
-        exit(1)
-        pass
-
-    if (sys.argv[1] == "--diff"):
-        if sys.argv[2] == "--usemask":
-            if (len(sys.argv) < 5):
-                display_usage()
-            else:
-                if ((os.path.exists(sys.argv[3]) == False) or (os.path.exists(sys.argv[4]) == False) ):
-                    print "No such database... Exiting"
+    
+        if (sys.argv[1] == "--diff"):
+            if sys.argv[2] == "--usemask":
+                if (len(sys.argv) < 5):
+                    display_usage()
+                else:
+                    if ((os.path.exists(sys.argv[3]) == False) or (os.path.exists(sys.argv[4]) == False) ):
+                        print "No such database... Exiting"
+                        exit(1)
+                        pass
+                    diff_db(sys.argv[3], sys.argv[4], 'log.txt', use_mask=True)
                     exit(1)
                     pass
-                diff_db(sys.argv[3], sys.argv[4], 'log.txt', use_mask=True)
+    
+            if (len(sys.argv) < 4):
+                display_usage()
+            if ((os.path.exists(sys.argv[2]) == False) or (os.path.exists(sys.argv[3]) == False) ):
+                print "No such database... Exiting"
                 exit(1)
                 pass
-
-        if (len(sys.argv) < 4):
-            display_usage()
-        if ((os.path.exists(sys.argv[2]) == False) or (os.path.exists(sys.argv[3]) == False) ):
-            print "No such database... Exiting"
-            exit(1)
-            pass
-        diff_db(sys.argv[2], sys.argv[3], 'log.txt')
+            diff_db(sys.argv[2], sys.argv[3], 'log.txt')
